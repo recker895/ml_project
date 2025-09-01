@@ -129,14 +129,21 @@ def main():
     # Load data
     df = load_data()
 
+    # List all possible cuisines for the dropdown
+    all_cuisines = ['Any', 'north indian', 'asian', 'continental', 'pizza', 'juices', 'italian']
+    
     # Cuisine and Price Filter Widgets
-    cuisine = st.selectbox('Select Cuisine', ['Any', 'north indian', 'asian', 'continental', 'pizza', 'juices', 'italian'])
+    cuisine = st.selectbox('Select Cuisine', all_cuisines)
     price_range = st.slider('Select Price Range', min_value=500, max_value=2000, value=(950, 1400), step=50)
 
     # Filter Data based on user input
     filtered_df = df[(df['Price'] >= price_range[0]) & (df['Price'] <= price_range[1])]
     if cuisine != 'Any':
         filtered_df = filtered_df[filtered_df['Dishes Served'].str.contains(cuisine, case=False)]
+
+    # Add serial numbers to the rows (starting from 1)
+    filtered_df.reset_index(drop=True, inplace=True)
+    filtered_df.index += 1
 
     # Display filtered table
     st.dataframe(filtered_df)
