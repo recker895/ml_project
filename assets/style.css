@@ -1,0 +1,90 @@
+/* Hero background */
+.hero{
+  position: relative;
+  width: 100%;
+  height: 68vh;
+  background-size: cover;
+  background-position: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-overlay{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+}
+.hero-title{
+  font-size: 72px;
+  line-height: 1.05;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 6px 18px rgba(0,0,0,.35);
+  margin: 0 0 24px 0;
+}
+
+/* Picker card (frosted) */
+.picker-card{
+  width: 560px;
+  backdrop-filter: blur(8px);
+  background: rgba(250, 245, 240, .92);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.5);
+  overflow: hidden;
+}
+.picker-row{
+  padding: 16px 20px;
+}
+.picker-row > label{
+  display:block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d2a26;
+  margin-bottom: 6px;
+}
+.divider{
+  height: 1px;
+  background: rgba(0,0,0,.08);
+  margin: 0 10px;
+}
+
+/* Make Streamlit selectboxes look like the mock */
+.stSelectbox label{ display:none !important; } /* we use our own labels */
+[data-baseweb="select"] > div{
+  border-radius: 16px !important;
+  background: #fff !important;
+  border: 1px solid #e8e2db !important;
+  min-height: 56px !important;
+  padding: 8px 12px !important;
+  box-shadow: none !important;
+}
+[data-baseweb="select"] div{ color:#1f2937 !important; font-size:18px !important; }
+[data-baseweb="select"] span{ color:#9AA2AF !important; font-size:18px !important; }
+
+/* Add a trailing $ in the Price select placeholder (first option) */
+#price-slot [data-baseweb="select"] div:after{
+  content:" $";
+  color:#9AA2AF;
+  margin-left: 4px;
+}
+
+/* Results area under hero */
+.results-wrap{
+  max-width: 1100px;
+  margin: 24px auto 48px;
+  padding: 0 24px;
+}
+.no-results{
+  background: #e3edf3;
+  color: #36556a;
+  padding: 14px 16px;
+  border-radius: 10px;
+}
+
+/* Cream page background behind hero overflow */
+html, body, [data-testid="stAppViewContainer"]{
+  background: #f8f0e0;
+}
