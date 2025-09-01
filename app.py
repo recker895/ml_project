@@ -3,15 +3,12 @@ import pandas as pd
 import base64
 from pathlib import Path
 
-# ------------------ background helpers ------------------
-def image_to_base64_uri(img_path: Path) -> str | None:
-    try:
-        data = img_path.read_bytes()
-        mime = "image/jpeg" if img_path.suffix.lower() in [".jpg", ".jpeg"] else "image/png"
-        return f"data:{mime};base64," + base64.b64encode(data).decode("utf-8")
-    except Exception:
-        return None
+# Function to convert image to base64
+def image_to_base64_uri(img_path):
+    with open(img_path, "rb") as f:
+        return "data:image/png;base64," + base64.b64encode(f.read()).decode()
 
+# Function to inject background image and apply custom styling
 def inject_bg():
     # try assets/hero.jpg, then hero.jpg
     for p in [Path("assets/hero.jpg"), Path("hero.jpg")]:
@@ -89,6 +86,7 @@ def inject_bg():
         font-weight: 700 !important;
       }}
 
+      /* Custom Table Style */
       .stTable thead th {{
         background: #000 !important;
         color: #fff !important;
@@ -99,41 +97,50 @@ def inject_bg():
         color: #fff !important;
         text-align: center !important;
       }}
+
+      /* Adding black background to row numbers (index column) */
+      .stTable tbody td:first-child {{
+        background: #000 !important;
+        color: #fff !important;
+      }}
     </style>
     """, unsafe_allow_html=True)
 
+# Loading Data (CSV or DataFrame)
+def load_data():
+    # Sample data, replace this with your actual data
+    data = {
+        'Restaurant': ['Ishaara', 'Darshan', 'Tettorica', 'Poise', 'PizzaExpress'],
+        'Price': [1400, 950, 1200, 1200, 1400],
+        'Dishes Served': ['biryani, north indian, kebab, mughlai', 
+                          'continental, north indian, chinese, mexican, fast food, desserts, juices',
+                          'north indian', 
+                          'asian', 
+                          'pizza, italian, salad, bakery, beverages, coffee, pasta']
+    }
+    df = pd.DataFrame(data)
+    return df
 
-# ------------------ app ------------------
-st.set_page_config(page_title="Top 5 Restaurants", page_icon="🍽️", layout="centered")
-inject_bg()
+# Main function to run the Streamlit app
+def main():
+    st.title('Top 5 Restaurants')
+    inject_bg()  # Call background styling function
+    
+    # Load data
+    df = load_data()
 
-# demo data
-restaurants = pd.DataFrame({
-    "Restaurant": ["Ishaara", "Darshan", "Tettoricca", "Poise", "PizzaExpress"],
-    "Price": [1400, 950, 1200, 1200, 1400],
-    "Dishes Served": [
-        "biryani, north indian, kebab, mughlai",
-        "continental, north indian, chinese, mexican, fast food, desserts, juices",
-        "north indian",
-        "asian",
-        "pizza, italian, salad, bakery, beverages, coffee, pasta"
-    ]
-})
+    # Cuisine and Price Filter Widgets
+    cuisine = st.selectbox('Select Cuisine', ['Any', 'north indian', 'asian', 'continental', 'pizza', 'juices', 'italian'])
+    price_range = st.slider('Select Price Range', min_value=500, max_value=2000, value=(950, 1400), step=50)
 
-all_cuisines = sorted({c.strip().lower() for dishes in restaurants["Dishes Served"] for c in dishes.split(",")})
+    # Filter Data based on user input
+    filtered_df = df[(df['Price'] >= price_range[0]) & (df['Price'] <= price_range[1])]
+    if cuisine != 'Any':
+        filtered_df = filtered_df[filtered_df['Dishes Served'].str.contains(cuisine, case=False)]
 
-# ---- Big black box ----
-st.markdown("<div class='black-container'>", unsafe_allow_html=True)
-st.markdown("<div class='card-title'>Top 5 Restaurants</div>", unsafe_allow_html=True)
+    # Display filtered table
+    st.dataframe(filtered_df)
 
-cuisine = st.selectbox("Select Cuisine", ["Any"] + all_cuisines, index=0)
-pmin, pmax = int(restaurants["Price"].min()), int(restaurants["Price"].max())
-price_range = st.slider("Select Price Range", min_value=pmin, max_value=pmax, value=(pmin, pmax), step=50)
-
-df = restaurants.copy()
-if cuisine != "Any":
-    df = df[df["Dishes Served"].str.contains(fr"\b{cuisine}\b", case=False, na=False)]
-df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
-
-st.table(df if not df.empty else pd.DataFrame([{"Restaurant": "No results"}]))
-st.markdown("</div>", unsafe_allow_html=True)
+# Run the app
+if __name__ == "__main__":
+    main()
